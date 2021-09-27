@@ -9,11 +9,16 @@ import org.testng.annotations.Test;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.filter.log.LogDetail;
+import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.response.Response;
+import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
+import io.restassured.specification.SpecificationQuerier;
 
 //import io.restassured.path.json.JsonPath;
 //import io.restassured.response.Response;
@@ -27,30 +32,41 @@ public class TestPostman {
 	
 	@BeforeClass
 	public void beforeClass() {
-		/*
-		 * reqSpec = with(). baseUri("https://api.postman.com"). header("X-API-Key",
-		 * "PMAK-614eeb1e2f6ed1003cf9682b-f501018f1521326dd7d2d9d7829f42f6cf");
-		 */
-		RequestSpecBuilder reqSpecbldr = new RequestSpecBuilder();
-		reqSpecbldr.setBaseUri("https://api.postman.com");
-		reqSpecbldr.addHeader("X-API-Key", "PMAK-614eeb1e2f6ed1003cf9682b-f501018f1521326dd7d2d9d7829f42f6cf");
-		reqSpecbldr.log(LogDetail.ALL);
 		
-		RestAssured.requestSpecification = reqSpecbldr.build();
+		RequestSpecBuilder reqSpecbldr = new RequestSpecBuilder().
+				setBaseUri("https://api.postman.com").
+				addHeader("X-API-Key", "PMAK-614eeb1e2f6ed1003cf9682b-f501018f1521326dd7d2d9d7829f42f6cf").
+				log(LogDetail.ALL);
+		RestAssured.requestSpecification = reqSpecbldr.build(); 
+		 
+		 /* resspec = RestAssured.expect(). statusCode(200). contentType(ContentType.JSON).
+		 * log().all();
+		 */
+		ResponseSpecBuilder resspecbldr = new ResponseSpecBuilder().
+				expectStatusCode(200).
+				expectContentType(ContentType.JSON).
+				log(LogDetail.ALL);
+		RestAssured.responseSpecification = resspecbldr.build();
 	}
 	
 	@Test
     public void validate_status_code(){
-		Response resp = get("/workspaces").then().log().all().extract().response();
-		assertThat(resp.statusCode(), is(equalTo(200)));
+		get("/workspaces");
     }
     
     @Test
     public void validate_response_body(){
-    	Response resp = get("/workspaces").then().log().all().extract().response();
-		assertThat(resp.statusCode(), is(equalTo(200)));
-		assertThat(resp.path("workspaces[0].name").toString(), equalTo("ManishWorkspace"));
+    			get("/workspaces");
+		//assertThat(resp.path("workspaces[0].name").toString(), equalTo("ManishWorkspace"));
     }
+    
+    @Test
+    public void queryTest() {
+    	QueryableRequestSpecification query = SpecificationQuerier.query(RestAssured.requestSpecification);
+    	System.out.println(query.getBaseUri());
+    	System.out.println(query.getHeaders());
+    }
+    
     
     //@Test
     public void extract_Response(){
