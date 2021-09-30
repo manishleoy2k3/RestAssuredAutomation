@@ -15,6 +15,14 @@ import static io.restassured.RestAssured.with;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesPattern;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import static org.hamcrest.MatcherAssert.*;
 
 
@@ -22,10 +30,20 @@ public class AutomatePost {
 
 	@BeforeClass
 	public void beforeClass() {
-
+		String key = null;
+		File file = new File("postmanKey" + File.separator + "postman-key.txt");
+		
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			key = reader.readLine();
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+			
 		RequestSpecBuilder reqSpecbldr = new RequestSpecBuilder().
 				setBaseUri("https://api.postman.com").
-				addHeader("X-API-Key", "PMAK-614eeb1e2f6ed1003cf9682b-f501018f1521326dd7d2d9d7829f42f6cf").
+				addHeader("X-API-Key", key).
 				setContentType(ContentType.JSON).
 				log(LogDetail.ALL);
 		RestAssured.requestSpecification = reqSpecbldr.build();

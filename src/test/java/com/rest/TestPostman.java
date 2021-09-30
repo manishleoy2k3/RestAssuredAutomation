@@ -2,6 +2,12 @@ package com.rest;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -32,10 +38,19 @@ public class TestPostman {
 	
 	@BeforeClass
 	public void beforeClass() {
+		String key = null;
+		File file = new File("postmanKey" + File.separator + "postman-key.txt");
 		
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			key = reader.readLine();
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 		RequestSpecBuilder reqSpecbldr = new RequestSpecBuilder().
 				setBaseUri("https://api.postman.com").
-				addHeader("X-API-Key", "PMAK-614eeb1e2f6ed1003cf9682b-f501018f1521326dd7d2d9d7829f42f6cf").
+				addHeader("X-API-Key", key).
 				log(LogDetail.ALL);
 		RestAssured.requestSpecification = reqSpecbldr.build(); 
 		 
